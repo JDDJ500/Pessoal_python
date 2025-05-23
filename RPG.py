@@ -5,7 +5,14 @@ from math import ceil
 import json
 from datetime import datetime
 
-inimigos = ["zombie sangrento"," caçador de almas", "mutante descontrolado", "Ekron, o Deformado", "Thornak, o Sussurrante"]
+inimigos = {
+    "Zombie sangrento": {"Classe": "Morto-Vivo"},
+    "Caçador de almas": {"Classe": "Fantasma"},
+    "Mutante descontrolado": {"Classe": "Morto-Vivo"},
+    "Ekron, o Deformado": {"Classe": "Guerreiro"},
+    "Thornak, o Sussurrante": {"Classe": "Fantasma"},
+    "Zeltris, o colecionador": {"Classe": "Guerreiro"}
+    }
 
 class Inimigo:
     def __init__(self, nome):
@@ -47,6 +54,109 @@ class Inimigo:
     def enemy_receber_dano(self, dano):
         self.enemy_vida -= dano
 
+class Morto_Vivo(Inimigo):
+    def __init__(self, nome):
+        super().__init__(nome)
+        self.enemy_nome = nome
+        self.enemy_maxvida = 7
+        self.enemy_vida = 7
+        self.enemy_dano = 2
+        self.enemy_expdrop = random.randint(1,3)
+        self.enemy_golddrop = random.randint(5,15)
+        self.enemy_multiplicador = 0.0
+    
+    def drop(self, jogador):
+        if random.randint(0,100) < 30:
+            talvez_pocao = 1
+        else:
+            talvez_pocao = 0
+
+        valor_drop = ceil(self.enemy_golddrop + (self.enemy_golddrop*self.enemy_multiplicador))
+        pocao_tipo = self.pocao_aleatoria()
+
+        jogador.player_receber_drops(valor_drop, self.enemy_expdrop, talvez_pocao, pocao_tipo, self)
+    
+    def enemy_status(self):
+        print(f"Nome: {self.enemy_nome} | Vida: {self.enemy_vida} | Dano: {self.enemy_dano} | Classe: Morto-Vivo")
+        return
+    
+    def enemy_estado(self):
+        if self.enemy_vida <= 0 or self.enemy_vida == 0:
+            print("O inimigo foi derrotado!")
+            return str("morto")
+        
+    def enemy_receber_dano(self, dano):
+        self.enemy_vida -= dano
+
+class Fantasma(Inimigo):
+    def __init__(self, nome):
+        super().__init__(nome)
+        self.enemy_nome = nome
+        self.enemy_maxvida = 10
+        self.enemy_vida = 10
+        self.enemy_dano = 2
+        self.enemy_expdrop = random.randint(2,3)
+        self.enemy_golddrop = random.randint(5,15)
+        self.enemy_multiplicador = 0.0
+    
+    def drop(self, jogador):
+        if random.randint(0,100) < 30:
+            talvez_pocao = 1
+        else:
+            talvez_pocao = 0
+
+        valor_drop = ceil(self.enemy_golddrop + (self.enemy_golddrop*self.enemy_multiplicador))
+        pocao_tipo = self.pocao_aleatoria()
+
+        jogador.player_receber_drops(valor_drop, self.enemy_expdrop, talvez_pocao, pocao_tipo, self)
+    
+    def enemy_status(self):
+        print(f"Nome: {self.enemy_nome} | Vida: {self.enemy_vida} | Dano: {self.enemy_dano} | Classe: Fantasma")
+        return
+    
+    def enemy_estado(self):
+        if self.enemy_vida <= 0 or self.enemy_vida == 0:
+            print("O inimigo foi derrotado!")
+            return str("morto")
+        
+    def enemy_receber_dano(self, dano):
+        self.enemy_vida -= dano
+
+            
+
+class Guerreiro(Inimigo):
+    def __init__(self, nome):
+        super().__init__(nome)
+        self.enemy_nome = nome
+        self.enemy_maxvida = 15
+        self.enemy_vida = 15
+        self.enemy_dano = 3
+        self.enemy_expdrop = random.randint(2,4)
+        self.enemy_golddrop = random.randint(5,20)
+        self.enemy_multiplicador = 0.0
+    
+    def drop(self, jogador):
+        if random.randint(0,100) < 30:
+            talvez_pocao = 1
+        else:
+            talvez_pocao = 0
+
+        valor_drop = ceil(self.enemy_golddrop + (self.enemy_golddrop*self.enemy_multiplicador))
+        pocao_tipo = self.pocao_aleatoria()
+
+        jogador.player_receber_drops(valor_drop, self.enemy_expdrop, talvez_pocao, pocao_tipo, self)
+    
+    def enemy_status(self):
+        print(f"Nome: {self.enemy_nome} | Vida: {self.enemy_vida} | Dano: {self.enemy_dano} | Classe: Guerreiro")
+        return
+    
+    def enemy_estado(self):
+        if self.enemy_vida <= 0 or self.enemy_vida == 0:
+            print("O inimigo foi derrotado!")
+            return str("morto")
+        
+    def enemy_receber_dano(self, dano):
+        self.enemy_vida -= dano
 
 class Jogador:
     def __init__(self, nome):
@@ -490,9 +600,12 @@ def ataque(jogador,enemy):
             print(f"Você atacou com {arma_nome}!")
             time.sleep(2)
         else:
-            dano = jogador.player_dano
-            print("Você atacou com seus punhos!")
-            time.sleep(2)
+            if enemy == "Caçador de almas" or enemy == "Thornak, o Sussurrante":
+                print(f"Você não pode acertar um fantasma com as mãos !!")
+            else:
+                dano = jogador.player_dano
+                print("Você atacou com seus punhos!")
+                time.sleep(2)
         
         enemy.enemy_receber_dano(dano)
         jogador.player_receber_dano(enemy.enemy_dano)
@@ -524,10 +637,42 @@ def ataque(jogador,enemy):
     elif check == "3":
         return
 
-def masmorra(jogador,enemy):
+def masmorra(jogador):
     limpar()
     while True:
-            
+        print("Inimigos\n")
+        nume = random.randint(0,6)
+        if nume == 0:
+            nume = "Zombie sangrento"
+        elif nume == 2:
+            nume = "Caçador de almas"
+        elif nume == 3:
+            nume = "Mutante descontrolado"
+        elif nume == 4:
+            nume = "Ekron, o Deformado"
+        elif nume == 5:
+            nume = "Thornak, o Sussurrante"
+        else:
+            nume = "Zeltris, o colecionador"
+
+        for chave, valor in inimigos.items():
+            for conteudo in valor.items():
+                if chave == nume:
+                    print(f"{chave} - selecionado")
+                    classe = inimigos[nume]['Classe']
+                    if classe == "Morto_Vivo":
+                        enemy = Morto_Vivo(nume)
+                    elif classe == "Fantasma":
+                        enemy = Fantasma(nume)
+                    else:
+                        enemy = Guerreiro(nume)
+                    
+                else:
+                    print(f"{chave} - {conteudo}")
+        print(f"\nPreparece para enfrentar o {nume}\n")
+        print(f"precione enter")
+        input()
+
         num = int(random.random()*10)
         if jogador.player_vida < jogador.player_maxvida // 2:
             if jogador.player_vida < 3:
@@ -563,7 +708,6 @@ def masmorra(jogador,enemy):
             jogador.curar_atributos()
 
         elif entrada == "3":
-            player_dano = jogador.player_dano
             enemyDano = enemy.enemy_dano
             sorteio = random.randint(0,10)
             if sorteio < 3:
@@ -699,7 +843,6 @@ def inventario(jogador):
 
 
 def menu_opcoes(jogador):
-    enemy = Inimigo(random.choice(inimigos))
     if jogador.player_nome.lower() == "jdfn" or jogador.player_nome == "":
         jogador.player_receber_drops(99999, 999999, 3, 2, enemy)
     
@@ -714,7 +857,7 @@ def menu_opcoes(jogador):
         
         entrada = input("> ")
         if entrada == "1":
-            masmorra(jogador, enemy)
+            masmorra(jogador)
             enemy = Inimigo(random.choice(inimigos))
         elif entrada == "2":
             jogador.loja()
