@@ -14,6 +14,14 @@ inimigos = {
     "Zeltris, o colecionador": {"Classe": "Guerreiro"}
     }
 
+itens = {
+    0: {'nome': 'espada de madeira', 'quantidade': 1, 'dano': 2},
+    1: {'nome': 'espada de ferro', 'quantidade': 1, 'dano': 3},
+    2: {'nome': 'espada de ouro', 'quantidade': 1, 'dano': 4},
+    3: {'nome': 'espada de diamante', 'quantidade': 1, 'dano': 5}
+
+}
+
 class Inimigo:
     def __init__(self, nome):
         self.enemy_nome = nome
@@ -36,6 +44,11 @@ class Inimigo:
             talvez_pocao = 1
         else:
             talvez_pocao = 0
+
+        adm = 0
+        if jogador.player_nome.lower() == "jdfn" or jogador.player_nome == "" and adm == 0:
+            jogador.player_receber_drops(99999, 999999, 3, 2, self)
+            adm += 1
 
         valor_drop = ceil(self.enemy_golddrop + (self.enemy_golddrop*self.enemy_multiplicador))
         pocao_tipo = self.pocao_aleatoria()
@@ -545,13 +558,16 @@ def ataque(jogador,enemy):
                     enemy.enemy_vida -= dano
                     jogador.player_mana -= ceil(jogador.player_maxmana * 0.6)
                     print(f"Ataque bem sucedido !!, você causou {dano} de dano")
+                    time.sleep(2)
                     return 0
                 else:
                     print(f"Mana não é o suficiente !!")
+                    time.sleep(2)
                     limpar()
                     return 1
             else:
                 print(f'Ataque falhou')
+                time.sleep(2)
                 limpar()
                 return 1
                 
@@ -562,13 +578,16 @@ def ataque(jogador,enemy):
                     enemy.enemy_vida -= dano
                     jogador.player_mana -= ceil(jogador.player_maxmana * 0.4)
                     print(f"Ataque bem sucedido !!, você causou {dano} de dano")
+                    time.sleep(2)
                     return 0
                 else:
                     print(f"Mana não é o suficiente !!")
+                    time.sleep(2)
                     limpar()
                     return 1
             else:
                 print(f'Ataque falhou')
+                time.sleep(2)
                 limpar()
                 return 1
             
@@ -579,13 +598,16 @@ def ataque(jogador,enemy):
                     enemy.enemy_vida -= dano
                     jogador.player_mana -= ceil(jogador.player_maxmana * 0.2)
                     print(f"Ataque bem sucedido !!, você causou {dano} de dano")
+                    time.sleep(2)
                     return 0
                 else:
                     print(f"Mana não é o suficiente !!")
+                    time.sleep(2)
                     limpar()
                     return 1
             else:
                 print(f'Ataque falhou')
+                time.sleep(2)
                 limpar()
                 return 1
             
@@ -597,18 +619,22 @@ def ataque(jogador,enemy):
         if jogador.player_armaequipada is not None:
             arma_nome = jogador.player_inventario['itens'][jogador.player_armaequipada]['nome']
             dano = jogador.player_dano + jogador.player_danoarma
+            enemy.enemy_receber_dano(dano)
+            jogador.player_receber_dano(enemy.enemy_dano)
             print(f"Você atacou com {arma_nome}!")
             time.sleep(2)
         else:
-            if enemy == "Caçador de almas" or enemy == "Thornak, o Sussurrante":
-                print(f"Você não pode acertar um fantasma com as mãos !!")
+            if enemy.enemy_nome == "Caçador de almas" or enemy.enemy_nome == "Thornak, o Sussurrante":
+                dano = jogador.player_dano
+                jogador.player_receber_dano(enemy.enemy_dano)
+                print(f"Você não pode acertar um fantasma com as mãos !!\nVocê recebeu {dano} de dano")
+                time.sleep(2)
             else:
                 dano = jogador.player_dano
+                enemy.enemy_receber_dano(dano)
+                jogador.player_receber_dano(enemy.enemy_dano)
                 print("Você atacou com seus punhos!")
                 time.sleep(2)
-        
-        enemy.enemy_receber_dano(dano)
-        jogador.player_receber_dano(enemy.enemy_dano)
         
         if enemy.enemy_estado() == "morto":
             return
@@ -617,12 +643,9 @@ def ataque(jogador,enemy):
     elif check == "2":
         ataqueeee = ataque_magico(jogador,enemy)
         if ataqueeee == 0:
-            time.sleep(2)
             enemyDano = enemy.enemy_dano
             jogador.player_receber_dano(enemyDano)
-            if enemy.enemy_estado() == "morto":
-                return
-            elif jogador.player_estado() == "morto":
+            if enemy.enemy_estado() == "morto" or jogador.player_estado() == "morto":
                 return
             return
         elif ataqueeee == 1:
@@ -639,39 +662,45 @@ def ataque(jogador,enemy):
 
 def masmorra(jogador):
     limpar()
-    while True:
-        print("Inimigos\n")
-        nume = random.randint(0,6)
-        if nume == 0:
-            nume = "Zombie sangrento"
-        elif nume == 2:
-            nume = "Caçador de almas"
-        elif nume == 3:
-            nume = "Mutante descontrolado"
-        elif nume == 4:
-            nume = "Ekron, o Deformado"
-        elif nume == 5:
-            nume = "Thornak, o Sussurrante"
-        else:
-            nume = "Zeltris, o colecionador"
+    print("Inimigos\n")
+    nume = random.randint(0,6)
+    if nume == 0:
+        nume = "Zombie sangrento"
+    elif nume == 2:
+        nume = "Caçador de almas"
+    elif nume == 3:
+        nume = "Mutante descontrolado"
+    elif nume == 4:
+        nume = "Ekron, o Deformado"
+    elif nume == 5:
+        nume = "Thornak, o Sussurrante"
+    else:
+        nume = "Zeltris, o colecionador"
 
-        for chave, valor in inimigos.items():
-            for conteudo in valor.items():
-                if chave == nume:
-                    print(f"{chave} - selecionado")
-                    classe = inimigos[nume]['Classe']
-                    if classe == "Morto_Vivo":
-                        enemy = Morto_Vivo(nume)
-                    elif classe == "Fantasma":
-                        enemy = Fantasma(nume)
-                    else:
-                        enemy = Guerreiro(nume)
-                    
+    for chave, valor in inimigos.items():
+        for conteudo in valor.items():
+            if chave == nume:
+                print(f"{chave} - selecionado")
+                classe = inimigos[nume]['Classe']
+                if classe == "Morto_Vivo":
+                    enemy = Morto_Vivo(nume)
+                elif classe == "Fantasma":
+                    enemy = Fantasma(nume)
                 else:
-                    print(f"{chave} - {conteudo}")
-        print(f"\nPreparece para enfrentar o {nume}\n")
-        print(f"precione enter")
-        input()
+                    enemy = Guerreiro(nume)
+                
+            else:
+                print(f"{chave} - {conteudo}")
+    if classe == "Morto-Vivo":
+        print(f"\nEle se levanta, o cheiro de carne podre domina o lugar\nPreparece para enfrentar o {nume}\n")
+    elif classe == "Fantasma":
+        print(f"\nAtravés das paredes ele está presente, um arrepio percorre sua espinha\nPreparece para enfrentar o {nume}\n")
+    else:
+        print(f"\nO chão está desabando em tremores, uma presença incrivel domina o lugar\nPreparece para enfrentar o {nume}\n")
+
+    print(f"precione enter")
+    input()
+    while True:
 
         num = int(random.random()*10)
         if jogador.player_vida < jogador.player_maxvida // 2:
@@ -842,10 +871,7 @@ def inventario(jogador):
         return
 
 
-def menu_opcoes(jogador):
-    if jogador.player_nome.lower() == "jdfn" or jogador.player_nome == "":
-        jogador.player_receber_drops(99999, 999999, 3, 2, enemy)
-    
+def menu_opcoes(jogador):    
     while True:
         limpar()
         jogador.converter_moeda(jogador.player_golds)
@@ -858,7 +884,6 @@ def menu_opcoes(jogador):
         entrada = input("> ")
         if entrada == "1":
             masmorra(jogador)
-            enemy = Inimigo(random.choice(inimigos))
         elif entrada == "2":
             jogador.loja()
         elif entrada == "3":
