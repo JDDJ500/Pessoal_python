@@ -14,13 +14,7 @@ inimigos = {
     "Zeltris, o colecionador": {"Classe": "Guerreiro"}
     }
 
-itens = {
-    0: {'nome': 'espada de madeira', 'quantidade': 1, 'dano': 2},
-    1: {'nome': 'espada de ferro', 'quantidade': 1, 'dano': 3},
-    2: {'nome': 'espada de ouro', 'quantidade': 1, 'dano': 4},
-    3: {'nome': 'espada de diamante', 'quantidade': 1, 'dano': 5}
-
-}
+itens = ["Espada de madeira", "Espada de pedra", "Espada de ferro"]
 
 class Inimigo:
     def __init__(self, nome):
@@ -44,11 +38,14 @@ class Inimigo:
             talvez_pocao = 1
         else:
             talvez_pocao = 0
+        
+        num = random.randint(0, 3)
+        if random.random() < 0.1:
+            if num == 0:
+                jogador.player_inventario['itens']["Espada de madeira"]['quantidade'] += 1
+            else:
+                jogador.adicionar_item(itens[num], random.randint(2,4))
 
-        adm = 0
-        if jogador.player_nome.lower() == "jdfn" or jogador.player_nome == "" and adm == 0:
-            jogador.player_receber_drops(99999, 999999, 3, 2, self)
-            adm += 1
 
         valor_drop = ceil(self.enemy_golddrop + (self.enemy_golddrop*self.enemy_multiplicador))
         pocao_tipo = self.pocao_aleatoria()
@@ -60,7 +57,7 @@ class Inimigo:
         return
     
     def enemy_estado(self):
-        if self.enemy_vida <= 0 or self.enemy_vida == 0:
+        if self.enemy_vida <= 0:
             print("O inimigo foi derrotado!")
             return str("morto")
         
@@ -83,6 +80,14 @@ class Morto_Vivo(Inimigo):
             talvez_pocao = 1
         else:
             talvez_pocao = 0
+        
+        num = random.randint(0, 3)
+        if random.random() < 0.1:
+            if num == 0:
+                jogador.player_inventario['itens']["Espada de madeira"]['quantidade'] += 1
+            else:
+                jogador.adicionar_item(itens[num], random.randint(2,4))
+
 
         valor_drop = ceil(self.enemy_golddrop + (self.enemy_golddrop*self.enemy_multiplicador))
         pocao_tipo = self.pocao_aleatoria()
@@ -117,6 +122,14 @@ class Fantasma(Inimigo):
             talvez_pocao = 1
         else:
             talvez_pocao = 0
+        
+        num = random.randint(0, 3)
+        if random.random() < 0.1:
+            if num == 0:
+                jogador.player_inventario['itens']["Espada de madeira"]['quantidade'] += 1
+            else:
+                jogador.adicionar_item(itens[num], random.randint(2,4))
+
 
         valor_drop = ceil(self.enemy_golddrop + (self.enemy_golddrop*self.enemy_multiplicador))
         pocao_tipo = self.pocao_aleatoria()
@@ -153,6 +166,14 @@ class Guerreiro(Inimigo):
             talvez_pocao = 1
         else:
             talvez_pocao = 0
+        
+        num = random.randint(0, 3)
+        if random.random() < 0.1:
+            if num == 0:
+                jogador.player_inventario['itens']["Espada de madeira"]['quantidade'] += 1
+            else:
+                jogador.adicionar_item(itens[num], random.randint(2,4))
+
 
         valor_drop = ceil(self.enemy_golddrop + (self.enemy_golddrop*self.enemy_multiplicador))
         pocao_tipo = self.pocao_aleatoria()
@@ -255,18 +276,39 @@ class Jogador:
         return False
 
     def converter_moeda(self, gold):
-        ouro = gold // 100
-        r_ouro = gold % 100
-        prata = r_ouro // 50
-        r_prata = r_ouro % 50
-        bronze = r_prata // 10
-        r_bronze = r_prata % 10
-        brita = r_bronze
-        
-        self.player_inventario['dinheiro']['ouro']['quantidade'] = ouro
-        self.player_inventario['dinheiro']['prata']['quantidade'] = prata
-        self.player_inventario['dinheiro']['bronze']['quantidade'] = bronze
-        self.player_inventario['dinheiro']['brita']['quantidade'] = brita
+        while True:
+            if gold >= 161:
+                gold -= 161
+
+                ouro = 161 // 100
+                r_ouro = 161 % 100
+                prata = r_ouro // 50
+                r_prata = r_ouro % 50
+                bronze = r_prata // 10
+                r_bronze = r_prata % 10
+                brita = r_bronze
+                
+                self.player_inventario['dinheiro']['ouro']['quantidade'] += ouro
+                self.player_inventario['dinheiro']['prata']['quantidade'] += prata
+                self.player_inventario['dinheiro']['bronze']['quantidade'] += bronze
+                self.player_inventario['dinheiro']['brita']['quantidade'] += brita
+                
+            elif gold <= 161:
+                ouro = gold // 100
+                r_ouro = gold % 100
+                prata = r_ouro // 50
+                r_prata = r_ouro % 50
+                bronze = r_prata // 10
+                r_bronze = r_prata % 10
+                brita = r_bronze
+                
+                self.player_inventario['dinheiro']['ouro']['quantidade'] += ouro
+                self.player_inventario['dinheiro']['prata']['quantidade'] += prata
+                self.player_inventario['dinheiro']['bronze']['quantidade'] += bronze
+                self.player_inventario['dinheiro']['brita']['quantidade'] += brita
+                self.player_golds = 0
+                break
+        return
     
     def adicionar_item(self, nome, dano):
         novo_id = max(self.player_inventario['itens'].keys()) + 1 if self.player_inventario['itens'] else 0
@@ -314,23 +356,25 @@ class Jogador:
             arma = 1
             self.player_inventario['itens'][0]['quantidade'] += 1
 
-        print(f"Parabens, Você recebeu; Golds: {gold} | Xp: {exp} | Poção: {pocao} | Arma: {arma}")
+        print(f"\n\nParabens, Você recebeu; Golds: {gold} | Xp: {exp} | Poção: {pocao} | Arma: {arma}\n")
+        self.player_up_atributos(enemy)
 
+        time.sleep(4)
+    def player_up_atributos(self, enemy):
         while self.player_exp >= self.player_maxexp:
             self.player_nivel += 1
             self.player_exp -= self.player_maxexp
             self.player_maxexp = int(self.player_maxexp * 1.1)
             self.player_maxvida = int(self.player_maxvida * 1.1)
             self.player_vida = self.player_maxvida
-            enemy.enemy_maxvida = int(enemy.enemy_maxvida * 1.1)
-            enemy.enemy_vida = enemy.enemy_maxvida
             self.player_maxmana = int(self.player_maxmana * 1.1)
             self.player_mana = self.player_maxmana
             self.player_dano = ceil((self.player_maxvida//self.player_nivel)*0.5)
+            enemy.enemy_maxvida = int(enemy.enemy_maxvida * 1.1)
+            enemy.enemy_vida = enemy.enemy_maxvida
             enemy.enemy_dano = ceil((enemy.enemy_maxvida//self.player_nivel)*0.7)
             enemy.enemy_multiplicador += 0.1
             print(f"\nParabéns {self.player_nome}! Você subiu para o nível {self.player_nivel}!")
-        time.sleep(4)
     
     def player_receber_dano(self, dano):
         self.player_vida -= dano
@@ -356,10 +400,10 @@ class Jogador:
                 else:
                     self.player_pocaomana -= 1
                     self.player_pocaovida += 1
-                    for i in range(3):
+                    for i in range(4):
                         print(f"\rConvertendo"+"."*i, end="", flush=True)
                         time.sleep(1)
-                    print("converção bem sucedida !!")
+                    print("\nconverção bem sucedida !!")
                     time.sleep(2)
             elif entrada == "2":
                 if self.player_pocaovida == 0:
@@ -368,66 +412,147 @@ class Jogador:
                 else:
                     self.player_pocaovida -= 1
                     self.player_pocaomana += 1
-                    for i in range(3):
+                    for i in range(4):
                         print(f"\rConvertendo"+"."*i, end="", flush=True)
                         time.sleep(1)
-                    print("converção bem sucedida !!")
+                    print("\nconverção bem sucedida !!")
                     time.sleep(2)
-                    print("converção bem sucedida !!")
 
     def loja(self):
         limpar()
         print("-"*10,"LOJA","-"*10)
         print("\n1 - poção de cura\n2 - poção de mana\n3 - voltar")
         entrada = input("> ")
-        def confirmar():
+        ouro = self.player_inventario["dinheiro"]["ouro"]["quantidade"]
+        prata = self.player_inventario["dinheiro"]["prata"]["quantidade"]
+        brita = self.player_inventario["dinheiro"]["brita"]["quantidade"]
+        bronze = self.player_inventario["dinheiro"]["bronze"]["quantidade"]
+        dinheiro_total = (ouro * 100) + (prata * 10) + brita
+        def converter_nota_gasto(gasto):
+            while True:
+                if gasto >= 161:
+                    gasto -= 161
+                    ouro1 = 161 // gasto
+                    r_ouro1 = 161 % gasto
+                    prata1 = r_ouro1 // 50
+                    r_prata1 = r_ouro1 % 50
+                    bronze1 = r_prata1 // 10
+                    r_bronze1 = r_prata1 % 10
+                    brita1 = r_bronze1
+                else:
+                    ouro1 = gasto // 161
+                    r_ouro1 = gasto % 161
+                    prata1 = r_ouro1 // 50
+                    r_prata1 = r_ouro1 % 50
+                    bronze1 = r_prata1 // 10
+                    r_bronze1 = r_prata1 % 10
+                    brita1 = r_bronze1
+                    gasto = 0
+
+                    self.player_inventario["dinheiro"]["ouro"]["quantidade"] -= ouro1
+                    self.player_inventario["dinheiro"]["prata"]["quantidade"] -= prata1
+                    self.player_inventario["dinheiro"]["bronze"]["quantidade"] -= bronze1
+                    self.player_inventario["dinheiro"]["brita"]["quantidade"] -= brita1
+                    break
+            return
+
+        def confirmar(entrada):
+            if dinheiro_total <= 9:
+                print("Você não tem dinheiro suficiente !!")
+                return
+            
             print(""*10,"CONFIRME",""*10)
-            print("\nA poção custa 10 golds, Tem certeza?")
+            print("Quantas deseja comprar?")
+            entry_qtd = int(input("> "))
+            print(f"\nA poção custa {10 * entry_qtd} golds, Tem certeza?")
             print("\n1 - Comprar\n2 - Desistir")
             enter = input("> ")
-            if enter == "1":
-                self.player_pocaovida += 1
-                self.player_golds -= 10
-                print("Compra feita com sucesso!")
-                time.sleep(2)
-                return
-            elif enter == "2":
-                return
-            else:
-                print("Resposta invalida!")
-                time.sleep(2)
-        def confirmar2():
-            print(""*10,"CONFIRME",""*10)
-            print("\nA poção custa 10 golds, Tem certeza?")
-            print("\n1 - Comprar\n2 - Desistir")
-            enter = input("> ")
-            if enter == "1":
-                self.player_pocaomana += 1
-                self.player_golds -= 10
-                print("Compra feita com sucesso!")
-                time.sleep(2)
-                return
-            elif enter == "2":
-                return
-            else:
-                print("Resposta invalida!")
-                time.sleep(2)
+            total = 10 * entry_qtd
+
+            if entrada == "1":
+                if enter == "1":
+                    if brita >= 10 * entry_qtd:
+                        self.player_pocaovida += entry_qtd
+                        converter_nota_gasto(total)
+                        print("Compra feita com sucesso!")
+                        time.sleep(2)
+                        return
+                    else:
+                        if bronze*10 >= 10 * entry_qtd:
+                            self.player_pocaovida += entry_qtd
+                            converter_nota_gasto(total)
+                            print("Compra feita com sucesso!")
+                            time.sleep(2)
+                            return
+                        else:
+                            if prata*50 >= 10 * entry_qtd:
+                                self.player_pocaovida += entry_qtd
+                                converter_nota_gasto(total)
+                                print("Compra feita com sucesso!")
+                                time.sleep(2)
+                                return
+                            else:
+                                if ouro*100 >= 10* entry_qtd:
+                                    self.player_pocaovida += entry_qtd
+                                    converter_nota_gasto(total)
+                                    self.converter_moeda(90)
+                                    print("Compra feita com sucesso!")
+                                    time.sleep(2)
+                                    return
+
+                elif enter == "2":
+                    return
+                else:
+                    print("Resposta invalida!")
+                    time.sleep(2)
+
+
+            elif entrada == "2":
+                if enter == "1":
+                    if brita >= 10 * entry_qtd:
+                        self.player_pocaomana += entry_qtd
+                        converter_nota_gasto(total)
+                        print("Compra feita com sucesso!")
+                        time.sleep(2)
+                        return
+                    else:
+                        if bronze*10 >= 10 * entry_qtd:
+                            self.player_pocaomana += entry_qtd
+                            converter_nota_gasto(total)
+                            print("Compra feita com sucesso!")
+                            time.sleep(2)
+                            return
+                        else:
+                            if prata*50 >= 10 * entry_qtd:
+                                self.player_pocaomana += entry_qtd
+                                converter_nota_gasto(total)
+                                print("Compra feita com sucesso!")
+                                time.sleep(2)
+                                return
+                            else:
+                                if ouro*100 >= 10* entry_qtd:
+                                    self.player_pocaomana += entry_qtd
+                                    converter_nota_gasto(total)
+                                    self.converter_moeda(90)
+                                    print("Compra feita com sucesso!")
+                                    time.sleep(2)
+                                    return
 
         if entrada == "1":
-            if self.player_golds >= 10:
-                confirmar()
+            if brita >= 10 or prata >= 1 or ouro >= 1:
+                confirmar(entrada)
                 limpar()
             else:
-                print("Quantidade de golds invalida!")
+                print("Dinheiro insuficiente!")
                 time.sleep(2)
                 limpar()
 
         elif entrada == "2":
-            if self.player_golds >= 10:
-                confirmar2()
+            if brita >= 10 or prata >= 1 or ouro >= 1:
+                confirmar(entrada)
                 limpar()
             else:
-                print("Quantidade de golds invalida!")
+                print("Dinheiro insuficiente!")
                 time.sleep(2)
                 limpar()
         
@@ -444,10 +569,9 @@ class Jogador:
     
     def player_status(self):
         if self.player_armaequipada is None:
-            print(f"Vida: {self.player_vida}/{self.player_maxvida} | Mana: {self.player_mana}/{self.player_maxmana} | Britas: {self.player_golds} | Dano: {self.player_dano} | Poções - Vida: {self.player_pocaovida} - Mana: {self.player_pocaomana} | Nivel: {self.player_nivel}({self.player_exp}/{self.player_maxexp})")
+            print(f"Vida: {self.player_vida}/{self.player_maxvida} | Mana: {self.player_mana}/{self.player_maxmana} | Britas: {self.player_inventario['dinheiro']['brita']['quantidade']} | Dano: {self.player_dano} | Poções - Vida: {self.player_pocaovida} - Mana: {self.player_pocaomana} | Nivel: {self.player_nivel}({self.player_exp}/{self.player_maxexp})")
         else:
-            arma_nome = self.player_inventario['itens'][self.player_armaequipada]['nome']
-            print(f"Vida: {self.player_vida}/{self.player_maxvida} | Mana: {self.player_mana}/{self.player_maxmana} | Britas: {self.player_golds} | Dano: {self.player_dano} +{self.player_danoarma} | Poções - Vida: {self.player_pocaovida} - Mana: {self.player_pocaomana} | Nivel: {self.player_nivel}({self.player_exp}/{self.player_maxexp})")
+            print(f"Vida: {self.player_vida}/{self.player_maxvida} | Mana: {self.player_mana}/{self.player_maxmana} | Britas: {self.player_inventario['dinheiro']['brita']['quantidade']} | Dano: {self.player_dano} +{self.player_danoarma} | Poções - Vida: {self.player_pocaovida} - Mana: {self.player_pocaomana} | Nivel: {self.player_nivel}({self.player_exp}/{self.player_maxexp})")
         
     def curar_atributos(self):
         limpar()
@@ -682,11 +806,11 @@ def masmorra(jogador):
             if chave == nume:
                 print(f"{chave} - selecionado")
                 classe = inimigos[nume]['Classe']
-                if classe == "Morto_Vivo":
+                if classe == "Morto-Vivo":
                     enemy = Morto_Vivo(nume)
                 elif classe == "Fantasma":
                     enemy = Fantasma(nume)
-                else:
+                elif classe == "Guerreiro":
                     enemy = Guerreiro(nume)
                 
             else:
@@ -696,12 +820,11 @@ def masmorra(jogador):
     elif classe == "Fantasma":
         print(f"\nAtravés das paredes ele está presente, um arrepio percorre sua espinha\nPreparece para enfrentar o {nume}\n")
     else:
-        print(f"\nO chão está desabando em tremores, uma presença incrivel domina o lugar\nPreparece para enfrentar o {nume}\n")
+        print(f"\nO chão está em tremores, uma presença incrivel domina o lugar\nPreparece para enfrentar o {nume}\n")
 
     print(f"precione enter")
     input()
     while True:
-
         num = int(random.random()*10)
         if jogador.player_vida < jogador.player_maxvida // 2:
             if jogador.player_vida < 3:
@@ -791,18 +914,31 @@ def carregar_jogo():
     arquivo = listar_saves()
     if not arquivo:
         return None
-    
+
     try:
         with open(arquivo, 'r', encoding='utf-8') as f:
             dados = json.load(f)
+
+        # Validação básica dos dados
+        required_keys = ['nome', 'vida', 'inventario', 'dano', 'nivel']
+        if not all(key in dados for key in required_keys):
+            print("Save incompleto ou inválido.")
+            return None
+
         jogador = Jogador.do_dicionario(dados)
-        print(f"Jogo carregado de '{arquivo}'!")
+        print(f"Jogo carregado: {arquivo}")
         time.sleep(2)
         return jogador
+
+    except FileNotFoundError:
+        print("Arquivo não encontrado.")
     except json.JSONDecodeError:
-        print(f"Save '{arquivo}' corrompido.")
-        time.sleep(2)
-        return None
+        print("Save corrompido.")
+    except Exception as e:
+        print(f"Erro inesperado: {e}")
+
+    time.sleep(2)
+    return None
 
 def ler_inventario(inventario):
     limpar()
@@ -894,11 +1030,12 @@ def menu_opcoes(jogador):
             novo_jogador = carregar_jogo()
             if novo_jogador:
                 jogador = novo_jogador
-                enemy = Inimigo(random.choice(inimigos))
         elif entrada == "6":
             print("Volte Sempre ._.")
             time.sleep(1)
             quit()
+        elif entrada == "?":
+            jogador.player_golds = 999999
         else:
             print("Opção inválida!")
             time.sleep(1)
